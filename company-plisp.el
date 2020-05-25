@@ -32,6 +32,21 @@
 		     files)))
    (message "Directory %s doesn't exist" plisp-directory))
    )
+(defvar plisp-functions--list (load-plisp--backend "/usr/share/doc/picolisp/doc/"))
+(defun company-plisp-backend (command &optional arg &rest ignored)
+  "Function that provide the necessary backend for company mode.
+The completion, requires COMMAND &optional ARG &rest IGNORED."
+  (cl-case command
+    (interactive (company-begin-backend 'plisp-functions--list))
+    (prefix (and (eq major-mode 'plisp-mode)
+                 (company-grab-symbol)))
+    (candidates
+     (-when-let* ((company-plisp-backend  plisp-functions--list ))
+	 (cl-remove-if-not
+		 (lambda (c) (string-prefix-p arg c))
+		 company-plisp-backend)))))
+
+  ;; (add-to-list 'company-backends '(company-plisp-backend))
 ;; (load-plisp--backend "/usr/share/doc/picolisp/doc/")
 
 ;; (f-exists-p "/usr/share/doc/picolisp/doc/")
