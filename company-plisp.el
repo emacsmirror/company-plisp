@@ -1,77 +1,35 @@
-(require 'dash)
 (require 's)
-(require 'f)
-;; (defun read-lines (filePath)
-;;   "Return a list of lines of a file at filePath."
-;;   (with-temp-buffer
-;;     (insert-file-contents filePath)
-;;     (split-string (buffer-string) "\n" t)))
-;; (split-string (f-read-text "/usr/share/doc/picolisp/doc/refB.html" 'utf-8) "\n" t)
+(require 'cl-lib)
+(require 'company)
 
+(defun get-lista (prefix)
+  (s-lines (shell-command-to-string
+	    (concat "pil ""/home/fermin/Programming/company-plisp/plisp-l.l "  "/home/fermin/Programming/company-plisp/company-plisp.l" " -" prefix " -bye"))))
+(get-lista "\\<h")
 
-(defun load-plisp--backend (plisp-directory)
-   "Load PLISP-DIRECTORY files and extract function names."
-   (if (f-exists-p plisp-directory)
-   (let* ((files (-filter (lambda (entry) (s-contains? "ref" entry)) (f-entries plisp-directory))))
-     (-flatten (-map (lambda (file-path)
-		       (let* ((file-string--list  (-filter (lambda (line) (s-contains? "name=" line))
-							   (split-string (f-read-text  file-path 'utf-8) "\n" t))))
-			 (-map (lambda (file-string)
-				 (let* ((name-index (s-index-of "name=" file-string) )
-					(string-reduce (substring file-string  name-index))
-					(string-last (substring  string-reduce 4 (s-index-of "\">" string-reduce))))
-				   ;;Some string have less than 1 length
-				   (when (> (length string-last) 2)
-				     (substring string-last 2)
-				     )
-				   )
-				 )
-			       file-string--list)
-			 )
-		       )
-		     files)))
-   (message "Directory %s doesn't exist" plisp-directory))
-   )
-(defvar plisp-functions--list (load-plisp--backend "/usr/share/doc/picolisp/doc/"))
-(defun company-plisp-backend (command &optional arg &rest ignored)
-  "Function that provide the necessary backend for company mode.
-The completion, requires COMMAND &optional ARG &rest IGNORED."
-  (cl-case command
-    (interactive (company-begin-backend 'plisp-functions--list))
-    (prefix (and (eq major-mode 'plisp-mode)
+(defun compay-plisp-load-libraries ()
+  ""
+  (interactive)
+  )
+
+(-filter (lambda (line)(progn (when (posix-string-match "\(load\s+[\"][@]?[[:word:]]+[\\/]?[[:word:]]+\\.l[\"]" line)
+				(message "%s" line))))
+	 (s-lines (buffer-substring-no-properties  1 (buffer-end 1))))
+
+(posix-string-match "\(load\s+[\"][@]?[[:word:]]+[\\/]?[[:word:]]+\\.l[\"]"  "(load \"@lib/xhtml.l\")")
+
+(defconst sample-completions
+  '("elenecico" "john" "ada" "don"))
+ (defun company-sample-backend (command &optional arg &rest ignored)
+   (interactive (list 'interactive))
+   (cl-case command
+     (interactive (company-begin-backend 'company-sample-backend))
+     (prefix (and (eq major-mode 'fundamental-mode)
                  (company-grab-symbol)))
-    (candidates
-     (-when-let* ((company-plisp-backend  plisp-functions--list ))
-	 (cl-remove-if-not
-		 (lambda (c) (string-prefix-p arg c))
-		 company-plisp-backend)))))
+     (candidates
+     (cl-remove-if-not
+       (lambda (c) (string-prefix-p arg c))
+       (get-lista (s-prepend "\\" arg))))))
 
-  ;; (add-to-list 'company-backends '(company-plisp-backend))
-;; (load-plisp--backend "/usr/share/doc/picolisp/doc/")
-
-;; (f-exists-p "/usr/share/doc/picolisp/doc/")
-;; (setq files (-filter (lambda (entry) (s-contains? "ref" entry)) (f-entries "/usr/share/doc/picolisp/doc/")))
-;; ;; (s-match (regexp-opt  '("/usr/share/doc/picolisp/doc/refB.html")) "/usr/share/doc/picolisp/doc/refB.html")
-
-;; (-flatten (-map (lambda (file-path)
-;; 		  (let* ((file-string--list  (-filter (lambda (line) (s-contains? "name=" line)) (read-lines file-path))))
-;; 		    (-map (lambda (file-string)
-;; 			    (let* ((name-index (s-index-of "name=" file-string) )
-;; 				   (string-reduce (substring file-string  name-index))
-;; 				   (string-last (substring  string-reduce 4 (s-index-of "\">" string-reduce))))
-;; 			      ;;Some string have less than 1 length
-;; 			      (when (> (length string-last) 2)
-;; 				(substring string-last 2)
-;; 				)
-;; 			      )
-;; 			    )
-;; 			  file-string--list)
-;; 		    )
-;; 		  )
-;; 		files))
-
-
-;; ;; (setq cadena (nth 6 (-filter (lambda (line) (s-contains? "name" line)) (read-lines "/usr/share/doc/picolisp/doc/refB.html"))))
-;; ;; (substring cadena (+ (s-index-of "\"" cadena) 1) (s-index-of "\">" cadena))
-
+(add-to-list 'company-backends '(company-sample-backend))
 
