@@ -1,13 +1,17 @@
 (require 's)
 (require 'cl-lib)
 (require 'company)
+;;Test plisp load
+(load "@ext.l" "@lib/http.l" "@lib/xhtml.l" "@lib/form.l")
 (defun get-lista (prefix)
-  (let* ((library-file (plisp-load-libraries)))
-(s-lines (shell-command-to-string
-	    (concat "pil " library-file " /home/fermin/Programming/company-plisp/company-plisp.l" " -" prefix " -bye")))
+  (let* ((library-file (plisp-load-libraries))
+	 (completion-list (s-lines (shell-command-to-string
+				    (concat "pil " library-file " /home/fermin/Programming/company-plisp/company-plisp.l" " -" prefix " -bye")))))
+(f-delete library-file)
+completion-list
     )
   )
-(get-lista "\\<h")
+(get-lista "id")
 
 (defun compay-plisp-load-libraries ()
   ""
