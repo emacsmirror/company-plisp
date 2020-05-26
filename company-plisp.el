@@ -1,10 +1,12 @@
 (require 's)
 (require 'cl-lib)
 (require 'company)
-
 (defun get-lista (prefix)
-  (s-lines (shell-command-to-string
-	    (concat "pil ""/home/fermin/Programming/company-plisp/plisp-l.l "  "/home/fermin/Programming/company-plisp/company-plisp.l" " -" prefix " -bye"))))
+  (let* ((library-file (plisp-load-libraries)))
+(s-lines (shell-command-to-string
+	    (concat "pil " library-file " /home/fermin/Programming/company-plisp/company-plisp.l" " -" prefix " -bye")))
+    )
+  )
 (get-lista "\\<h")
 
 (defun compay-plisp-load-libraries ()
@@ -12,14 +14,23 @@
   (interactive)
   )
 
-(-filter (lambda (line)(progn (when (posix-string-match "\(load\s+[\"][@]?[[:word:]]+[\\/]?[[:word:]]+\\.l[\"]" line)
+(defun plisp-load-libraries ()
+  ""
+  (let* ((plisp-temp-l (make-temp-file "plisp_l.l"))
+	 (load-lines (-filter (lambda (line)(progn (when (posix-string-match "\(load\s+[\"][@]?[[:word:]]+[\\/]?[[:word:]]+\\.l[\"]" line)
 				(message "%s" line))))
-	 (s-lines (buffer-substring-no-properties  1 (buffer-end 1))))
+			      (s-lines (buffer-substring-no-properties  1 (buffer-end 1))))))
+    (-map (lambda (line)
+(write-region line nil plisp-temp-l  'append)
+	    )
+	  load-lines)
+(format "%s" plisp-temp-l)))
+(plisp-load-libraries)
 
-(posix-string-match "\(load\s+[\"][@]?[[:word:]]+[\\/]?[[:word:]]+\\.l[\"]"  "(load \"@lib/xhtml.l\")")
 
-(defconst sample-completions
-  '("elenecico" "john" "ada" "don"))
+
+;; (posix-string-match "\(load\s+[\"][@]?[[:word:]]+[\\/]?[[:word:]]+\\.l[\"]"  "(load \"@lib/xhtml.l\")")
+
  (defun company-sample-backend (command &optional arg &rest ignored)
    (interactive (list 'interactive))
    (cl-case command
