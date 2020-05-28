@@ -42,53 +42,56 @@
   :link '(url-link :tag "Repository" "https://gitlab.com/sasanidas/company-plisp"))
 
 
-(defcustom company-plisp-complete-libraries nil
+(defcustom company-plisp-complete-libraries t
   "Wheter or not to complete file libraries.
 It may affect performance."
   :type 'boolean
   :group 'company-plisp)
 
+(defvar company-plisp-complete-file
+  (concat package-user-dir "company-plisp/company-plisp.l")
+  "Default location for the company PicoLisp completion file.")
+
 (defun company-plisp--load-libraries ()
-  ""
-  ;;TODO Hacer esto mejor utilizando una SOLA linea, y buscando en ella los load e insertarlos a la misma vez, mas eficiente.
+  "Search for load function inside the buffer.
+Append it to a temp file, and return the file name."
   (let* ((plisp-temp-l (make-temp-file "plisp_l.l"))
-	 (load-lines (-filter (lambda (line)
-					      (posix-string-match "\(load\s+[\"][@]?[[:word:]]+[\\/]?[[:word:]]+\\.l[\"]" line))
+	 (load-lines
+	  (-filter (lambda (line)
+				(posix-string-match "\(load\s+[\"][@]?[[:word:]]+[\\/]?[[:word:]]+\\.l[\"]" line))
 			      (s-lines (buffer-substring-no-properties  1 (buffer-end 1))))))
     (-map (lambda (line)
-	    (write-region line nil plisp-temp-l  'append)
-	    )
+	    (write-region line nil plisp-temp-l  'append))
 	  load-lines)
     (format "%s" plisp-temp-l)))
 
 
 
-(defun get-lista (prefix)
+(defun company-plisp--backend (prefix)
+  "Company plisp backend function PREFIX."
   (let* ((library-file (if company-plisp-complete-libraries
 			   (company-plisp--load-libraries)
 			 ""))
 	 (completion-list (s-lines (shell-command-to-string
-				    (concat "pil " library-file " /home/fermin/Programming/company-plisp/company-plisp.l" " -" prefix " -bye")))))
+				    (concat "pil " library-file " " company-plisp-complete-file " -" prefix " -bye")))))
     (unless (equal (length library-file) 0)
       (delete-file library-file))
-    completion-list)
-  )
-(get-lista (s-prepend "\\" "<h"))
+    completion-list))
 
 
 
- (defun company-sample-backend (command &optional arg &rest ignored)
+ (defun company-plisp (command &optional arg &rest ignored)
    (interactive (list 'interactive))
    (cl-case command
-     (interactive (company-begin-backend 'company-sample-backend))
+     (interactive (company-begin-backend 'company-plisp))
      (prefix (and (eq major-mode 'plisp-mode)
                  (company-grab-symbol)))
      (candidates
      (cl-remove-if-not
        (lambda (c) (string-prefix-p arg c))
-       (get-lista (s-prepend "\\" arg))))))
+       (company-plisp--backend (s-prepend "\\" arg))))))
 
-(add-to-list 'company-backends '(company-sample-backend))
+(add-to-list 'company-backends '(company-plisp))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
