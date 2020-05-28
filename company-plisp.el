@@ -1,45 +1,84 @@
+;;; company-plisp.el --- Company mode backend for PicoLisp language	-*- lexical-binding: t; -*-
+;; Copyright (C) 2020  Fermin Munoz
+
+;; Author: Fermin MF <fmfs@posteo.net>
+;; Created: 26 May 2020
+;; Version: 0.0.1
+;; Keywords: company,plisp,convenience,auto-completion
+
+;; URL: https://gitlab.com/sasanidas/company-plisp
+;; Package-Requires: ((emacs "25") (s "1.2.0") (company "0.8.12") (dash "2.12.0") (cl-lib "0.5"))
+;; License: GPL-3.0-or-later
+
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+;;; Commentary:
+
+;; Backend for company mode for the PicoLisp programming language
+
+;;; Code:
+
+
 (require 's)
 (require 'cl-lib)
 (require 'company)
-;;Test plisp load
-(load "@ext.l" "@lib/http.l" "@lib/xhtml.l" "@lib/form.l")
+
+(defgroup company-plisp nil
+  "Company mode backend for PicoLisp functions."
+  :group 'company
+  :prefix "company-plisp-"
+  :link '(url-link :tag "Repository" "https://gitlab.com/sasanidas/company-plisp"))
+
+
+(defcustom company-plisp-complete-libraries t
+  "Wheter or not to complete file libraries.
+It may affect performance."
+  :type 'boolean
+  :group 'company-plisp)
+(posix-string-match "\(load\s+[\"][@]?[[:word:]]+[\\/]?[[:word:]]+\\.l[\"]" "(load \"@lib/http.l\" \"@lib/xhtml.l\" \"@lib/form.l\")")
+
+(defun plisp-load-libraries ()
+  ""
+  (let* ((plisp-temp-l (make-temp-file "plisp_l.l"))
+	 (load-lines (-filter (lambda (line)
+					      (posix-string-match "\(load\s+[\"][@]?[[:word:]]+[\\/]?[[:word:]]+\\.l[\"]" line))
+			      (s-lines (buffer-substring-no-properties  1 (buffer-end 1))))))
+    (message" %s" load-lines)
+    (-map (lambda (line)
+	    (write-region line nil plisp-temp-l  'append)
+	    )
+	  load-lines)
+    (format "%s" plisp-temp-l)))
+
+
+
 (defun get-lista (prefix)
   (let* ((library-file (plisp-load-libraries))
 	 (completion-list (s-lines (shell-command-to-string
 				    (concat "pil " library-file " /home/fermin/Programming/company-plisp/company-plisp.l" " -" prefix " -bye")))))
 (f-delete library-file)
-completion-list
-    )
+    completion-list)
   )
-(get-lista "id")
-
-(defun compay-plisp-load-libraries ()
-  ""
-  (interactive)
-  )
-
-(defun plisp-load-libraries ()
-  ""
-  (let* ((plisp-temp-l (make-temp-file "plisp_l.l"))
-	 (load-lines (-filter (lambda (line)(progn (when (posix-string-match "\(load\s+[\"][@]?[[:word:]]+[\\/]?[[:word:]]+\\.l[\"]" line)
-				(message "%s" line))))
-			      (s-lines (buffer-substring-no-properties  1 (buffer-end 1))))))
-    (-map (lambda (line)
-(write-region line nil plisp-temp-l  'append)
-	    )
-	  load-lines)
-(format "%s" plisp-temp-l)))
-(plisp-load-libraries)
+(get-lista (s-prepend "\\" "<h"))
 
 
-
-;; (posix-string-match "\(load\s+[\"][@]?[[:word:]]+[\\/]?[[:word:]]+\\.l[\"]"  "(load \"@lib/xhtml.l\")")
 
  (defun company-sample-backend (command &optional arg &rest ignored)
    (interactive (list 'interactive))
    (cl-case command
      (interactive (company-begin-backend 'company-sample-backend))
-     (prefix (and (eq major-mode 'fundamental-mode)
+     (prefix (and (eq major-mode 'plisp-mode)
                  (company-grab-symbol)))
      (candidates
      (cl-remove-if-not
@@ -48,3 +87,6 @@ completion-list
 
 (add-to-list 'company-backends '(company-sample-backend))
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; company-plisp.el ends here
