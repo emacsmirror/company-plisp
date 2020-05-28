@@ -91,8 +91,5 @@ Append it to a temp file, and return the file name."
        (lambda (c) (string-prefix-p arg c))
        (company-plisp--backend (s-prepend "\\" arg))))))
 
-(add-to-list 'company-backends '(company-plisp))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(provide 'company-plisp)
 ;;; company-plisp.el ends here
