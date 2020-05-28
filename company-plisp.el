@@ -48,8 +48,14 @@ It may affect performance."
   :type 'boolean
   :group 'company-plisp)
 
-(defvar company-plisp-complete-file
-  (concat package-user-dir "company-plisp/company-plisp.l")
+(defcustom company-plisp-pil-exec "/usr/bin/pil"
+  "PicoLisp pil executable location."
+  :type 'file
+  :group 'company-plisp)
+
+(defvar company-plisp-complete-file (concat
+				     (file-name-directory load-file-name)
+				     "company-plisp.l")
   "Default location for the company PicoLisp completion file.")
 
 (defun company-plisp--load-libraries ()
@@ -73,7 +79,11 @@ Append it to a temp file, and return the file name."
 			   (company-plisp--load-libraries)
 			 ""))
 	 (completion-list (s-lines (shell-command-to-string
-				    (concat "pil " library-file " " company-plisp-complete-file " -" prefix " -bye")))))
+				    (concat  company-plisp-pil-exec " "
+					     library-file " "
+					     company-plisp-complete-file " -"
+					     prefix " -bye")))))
+    
     (unless (equal (length library-file) 0)
       (delete-file library-file))
     completion-list))
