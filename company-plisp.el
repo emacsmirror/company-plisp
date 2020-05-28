@@ -41,20 +41,18 @@
   :link '(url-link :tag "Repository" "https://gitlab.com/sasanidas/company-plisp"))
 
 
-(defcustom company-plisp-complete-libraries t
+(defcustom company-plisp-complete-libraries nil
   "Wheter or not to complete file libraries.
 It may affect performance."
   :type 'boolean
   :group 'company-plisp)
-(posix-string-match "\(load\s+[\"][@]?[[:word:]]+[\\/]?[[:word:]]+\\.l[\"]" "(load \"@lib/http.l\" \"@lib/xhtml.l\" \"@lib/form.l\")")
 
-(defun plisp-load-libraries ()
+(defun company-plisp--load-libraries ()
   ""
   (let* ((plisp-temp-l (make-temp-file "plisp_l.l"))
 	 (load-lines (-filter (lambda (line)
 					      (posix-string-match "\(load\s+[\"][@]?[[:word:]]+[\\/]?[[:word:]]+\\.l[\"]" line))
 			      (s-lines (buffer-substring-no-properties  1 (buffer-end 1))))))
-    (message" %s" load-lines)
     (-map (lambda (line)
 	    (write-region line nil plisp-temp-l  'append)
 	    )
@@ -64,10 +62,13 @@ It may affect performance."
 
 
 (defun get-lista (prefix)
-  (let* ((library-file (plisp-load-libraries))
+  (let* ((library-file (if company-plisp-complete-libraries
+			   (company-plisp--load-libraries)
+			 ""))
 	 (completion-list (s-lines (shell-command-to-string
 				    (concat "pil " library-file " /home/fermin/Programming/company-plisp/company-plisp.l" " -" prefix " -bye")))))
-(f-delete library-file)
+    (unless (equal (length library-file) 0)
+      (delete-file library-file))
     completion-list)
   )
 (get-lista (s-prepend "\\" "<h"))
