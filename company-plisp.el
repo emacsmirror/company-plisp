@@ -32,6 +32,7 @@
 
 (require 's)
 (require 'cl-lib)
+(require 'dash)
 (require 'company)
 
 (defgroup company-plisp nil
