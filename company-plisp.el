@@ -49,6 +49,7 @@ It may affect performance."
 
 (defun company-plisp--load-libraries ()
   ""
+  ;;TODO Hacer esto mejor utilizando una SOLA linea, y buscando en ella los load e insertarlos a la misma vez, mas eficiente.
   (let* ((plisp-temp-l (make-temp-file "plisp_l.l"))
 	 (load-lines (-filter (lambda (line)
 					      (posix-string-match "\(load\s+[\"][@]?[[:word:]]+[\\/]?[[:word:]]+\\.l[\"]" line))
