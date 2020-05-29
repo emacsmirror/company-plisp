@@ -42,7 +42,7 @@
   :link '(url-link :tag "Repository" "https://gitlab.com/sasanidas/company-plisp"))
 
 
-(defcustom company-plisp-complete-libraries t
+(defcustom company-plisp-complete-libraries nil
   "Wheter or not to complete file libraries.
 It may affect performance."
   :type 'boolean
