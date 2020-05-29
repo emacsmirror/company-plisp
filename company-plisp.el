@@ -67,8 +67,7 @@ Append it to a temp file, and return the file name."
 				(posix-string-match "\(load\s+[\"][@]?[[:word:]]+[\\/]?[[:word:]]+\\.l[\"]" line))
 			      (s-lines (buffer-substring-no-properties  1 (buffer-end 1))))))
     (-map (lambda (line)
-	     (write-region line nil plisp-temp-l 'append 0)
-	    )
+	     (write-region line nil plisp-temp-l 'append 0))
 	  load-lines)
     (format "%s" plisp-temp-l)))
 
