@@ -78,12 +78,13 @@ Append it to a temp file, and return the file name."
   (let* ((library-file (if company-plisp-complete-libraries
 			   (company-plisp--load-libraries)
 			 ""))
-	 (completion-list (s-lines (shell-command-to-string
+	 (completion-list
+	  (s-lines
+	   (shell-command-to-string
 				    (concat  company-plisp-pil-exec " "
 					     library-file " "
 					     company-plisp-complete-file " -"
 					     prefix " -bye")))))
-    
     (unless (equal (length library-file) 0)
       (delete-file library-file))
     completion-list))
