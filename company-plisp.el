@@ -64,10 +64,10 @@ Append it to a temp file, and return the file name."
   (let* ((plisp-temp-l (make-temp-file "plisp_l.l"))
 	 (load-lines
 	  (-filter (lambda (line)
-				(posix-string-match "\(load\s+[\"][@]?[[:word:]]+[\\/]?[[:word:]]+\\.l[\"]" line))
-			      (s-lines (buffer-substring-no-properties  1 (buffer-end 1))))))
+		     (posix-string-match "\(load\s+[\"][@]?[[:word:]]+[\\/]?[[:word:]]+\\.l[\"]" line))
+		   (s-lines (buffer-substring-no-properties  1 (buffer-end 1))))))
     (-map (lambda (line)
-	     (write-region line nil plisp-temp-l 'append 0))
+	    (write-region line nil plisp-temp-l 'append 0))
 	  load-lines)
     (format "%s" plisp-temp-l)))
 
@@ -81,26 +81,26 @@ Append it to a temp file, and return the file name."
 	 (completion-list
 	  (s-lines
 	   (shell-command-to-string
-				    (concat  company-plisp-pil-exec " "
-					     library-file " "
-					     company-plisp-complete-file " -"
-					     prefix " -bye")))))
+	    (concat  company-plisp-pil-exec " "
+		     library-file " "
+		     company-plisp-complete-file " -"
+		     prefix " -bye")))))
     (unless (equal (length library-file) 0)
       (delete-file library-file))
     completion-list))
 
 
 
- (defun company-plisp (command &optional arg &rest ignored)
-   (interactive (list 'interactive))
-   (cl-case command
-     (interactive (company-begin-backend 'company-plisp))
-     (prefix (and (eq major-mode 'plisp-mode)
+(defun company-plisp (command &optional arg &rest ignored)
+  (interactive (list 'interactive))
+  (cl-case command
+    (interactive (company-begin-backend 'company-plisp))
+    (prefix (and (eq major-mode 'plisp-mode)
                  (company-grab-symbol)))
-     (candidates
+    (candidates
      (cl-remove-if-not
-       (lambda (c) (string-prefix-p arg c))
-       (company-plisp--backend (s-prepend "\\" arg))))))
+      (lambda (c) (string-prefix-p arg c))
+      (company-plisp--backend (s-prepend "\\" arg))))))
 
 (provide 'company-plisp)
 ;;; company-plisp.el ends here
