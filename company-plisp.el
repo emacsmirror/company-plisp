@@ -92,6 +92,7 @@ Append it to a temp file, and return the file name."
 
 
  (defun company-plisp (command &optional arg &rest ignored)
+   "Company plisp main function, it requires a COMMAND"
    (interactive (list 'interactive))
    (cl-case command
      (interactive (company-begin-backend 'company-plisp))
