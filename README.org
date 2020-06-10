@@ -1,0 +1,53 @@
+* Company-plisp
+[[License: GPL v3][https://img.shields.io/badge/License-GPLv3-blue.svg]]
+[[https://melpa.org/#/company-plisp][file:https://melpa.org/packages/company-plisp-badge.svg]]
+[[https://stable.melpa.org/#/company-plisp][file:https://stable.melpa.org/packages/company-plisp-badge.svg]]
+[[https://github.com/quelpa/quelpa][file:https://img.shields.io/badge/quelpa-company--plisp-blue.svg]]
+ 
+  Package that provide company completion for the PicoLisp programming language.
+  + Autocomplete common keywords and libraries
+  + Optinal load of external libraries
+
+** Install
+*** Quelpa
+    You can install it with [[https://github.com/quelpa/quelpa][quelpa]]:
+
+     #+BEGIN_SRC emacs-lisp 
+     (quelpa '(company-plisp :fetcher git :url "https://gitlab.com/sasanidas/company-plisp.git"))
+   #+END_SRC
+
+*** Melpa
+
+     =M-x package-install RET company-plisp RET= to install =company-plisp= from [[https://melpa.org/][MELPA]].
+     
+* Configuration
+   
+     #+BEGIN_SRC emacs-lisp 
+     (require 'company-plisp)
+     (add-to-list 'company-backends '(company-plisp))
+   #+END_SRC
+   
+   + If you want libraries autocompletion you can customize or set the variable:
+   
+     =M-x customize-variable RET company-plisp-complete-libraries RET=
+     
+   #+BEGIN_SRC emacs-lisp 
+    (setq company-plisp-complete-libraries t)
+   #+END_SRC
+   
+   
+** License
+company-plisp Copyright © 2020 by Fermin Munoz <fmfs@posteo.net>
+
+company-plisp is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+company-plisp is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with company-plisp.  If not, see <http://www.gnu.org/licenses/>.
